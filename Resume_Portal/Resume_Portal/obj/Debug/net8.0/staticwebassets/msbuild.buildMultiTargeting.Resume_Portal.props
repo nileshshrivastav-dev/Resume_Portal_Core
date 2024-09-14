@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Resume_Portal.props" />
+</Project>

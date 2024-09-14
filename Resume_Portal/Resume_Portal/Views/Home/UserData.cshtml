@@ -1,0 +1,436 @@
+﻿@model Resume_Portal.Models.DashBoardModel
+
+@{
+    ViewBag.Title = "UserData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/all.css" rel="stylesheet" />
+<style>
+    .link {
+        text-decoration: none;
+        color: white;
+    }
+
+        .link:hover {
+            color: red;
+        }
+
+    .file-block {
+        border-radius: 10px;
+        background-color: rgba(144, 163, 203, 0.2);
+        margin: 5px;
+        color: initial;
+        display: inline-flex;
+    }
+
+        .file-block .name {
+            padding-right: 10px;
+            width: max-content;
+            display: inline-flex;
+        }
+
+    .file-delete {
+        display: flex;
+        width: 24px;
+        color: initial;
+        background-color: #6eb4ff00;
+        font-size: large;
+        justify-content: center;
+        margin-right: 3px;
+        cursor: pointer;
+    }
+
+        .file-delete:hover {
+            background-color: rgba(144, 163, 203, 0.2);
+            border-radius: 10px;
+        }
+
+        .file-delete span {
+            transform: rotate(45deg);
+        }
+</style>
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title"><i class="flaticon-381-television me-2 bg-gray-dark p-2 text-light rounded-circle"></i>Resume</h4>
+                <button class="btn btn-primary float-end ms-3 me-3 mb-3" data-bs-toggle="modal" data-bs-target="#basicModal1">Add Resume</button>
+
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    @if (Model.Resumesdata != null)
+                    {
+                        <table class="table table-responsive-md" id="myTable">
+                            <thead>
+                                <tr class="bg-primary">
+                                    <th class="width80"><strong class="text-light">#</strong></th>
+                                    <th><strong class="text-light">Title</strong></th>
+                                    <th><strong class="text-light">Designation</strong></th>
+                                    <th><strong class="text-light">Resume</strong></th>
+                                    <th><strong class="text-light">Keywords</strong></th>
+
+                                    <th><strong class="text-light">UploadedBY</strong></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var resume in Model.Resumesdata)
+                                {
+                                    if (resume.Status != false)
+                                    {
+                                        <tr>
+                                            <td><strong>@i</strong></td>
+                                            <td>@resume.Title</td>
+                                            <td>@resume.Designation</td>
+                                            @*<td><a href="~/@Model.Resumes.Designation/@Model.Resumes.Resume"><i class="fa-solid fa-file-pdf fs-4 text-danger"></i></a></td>*@
+                                            <td><a href="~/@resume.Designation/@resume.Resume"><i class="fa-solid fa-file-pdf fs-4 text-danger"></i></a></td>
+
+                                            <td>@resume.KeyWords</td>
+
+                                            <td>@resume.UploadedBy</td>
+@*                                             <td> <button class="btn btn-primary"><a href="/home/ChangeStatusResume?id=@resume.Id" class="link">Delete</a></button></td>
+ *@
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button type="button" class="btn btn-success light sharp" data-bs-toggle="dropdown">
+                                                        <svg width="20px" height="20px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24" /><circle fill="#000000" cx="5" cy="12" r="2" /><circle fill="#000000" cx="12" cy="12" r="2" /><circle fill="#000000" cx="19" cy="12" r="2" /></g></svg>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <a class="dropdown-item" onclick="foundData(@resume.Id)" data-bs-toggle="modal" data-bs-target="#basicModal">Edit</a>
+                                                        <a class="dropdown-item" href="/home/ChangeStatusResume?id=@resume.Id">Delete</a>
+                                                    </div>
+                                                </div>
+                                            </td>
+</tr>
+                                        i++;
+                                    }
+
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <center><span class="text-bg-dark mx-auto txt">No Data here ! Please Add Your Resume....</span></center>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="basicModal1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <span id="spn">@ViewBag.msg</span>
+                        <form method="post" name="form" id="form1" enctype="multipart/form-data" class="form-valide-with-icon needs-validation" novalidate>
+
+                            @Html.AntiForgeryToken()
+                            <input type="email" name="email" hidden value="@User.Identity.Name">
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">Title :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-brands fa-battle-net"></i> </span>
+                                    <input type="text" placeholder="Enter Title" name="Title" class="form-control br-style">
+                                    <div class="invalid-feedback">
+                                        Please Enter Title.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">Designation :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-solid fa-hat-cowboy"></i> </span>
+                                    <select class="form-control" name="Designation">
+                                        @if (Model != null)
+                                        {
+                                            <option disabled selected>--Select Your Designation</option>
+                                            foreach (var item in Model.Designations)
+                                            {
+
+                                                <option>@item.Designation</option>
+                                            }
+                                        }
+                                    </select>
+                                    @*<div class="invalid-feedback">
+                                    Please Enter Title.
+                                    </div>*@
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">KeyWords :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-solid fa-magnifying-glass"></i> </span>
+                                    <textarea name="KeyWords" class="form-control br-style"></textarea>
+                                    <div class="invalid-feedback">
+                                        Please Enter KeyWords.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 text-center">
+                                @* <label class="text-label form-label" for="">Upload Resume :</label> *@
+                                <div class="border border-1 rounded rounded-4">
+                                <label for="file">
+                                    <a class="text-primary fs-1" role="button" aria-disabled="false"><i class="fa-solid fa-cloud-arrow-up"></i></a><br/>
+                                  <span>Upload Resumes</span>
+                                </label>
+                                </div>
+                                <div class="input-group">
+@*                                     <span class="input-group-text search_icon"> <i class="fa-solid fa-file"></i> </span>
+ *@                                    <input type="file" class="form-control" id="file" name="Resumes" multiple="multiple" accept=".pdf" onchange="RemoveoneFile()" style="visibility: hidden; position: absolute;" required /><br />
+                                    @*<input type="file" class="form-control" id="file" name="Resumedata" onblur="return filevalidation()" multiple="multiple" required />*@
+                                    <div class="invalid-feedback">
+                                        Please Enter KeyWords.
+                                        <span class="text-danger bg-warning" id="rsm"></span><br />
+
+                                    </div>
+                                </div>
+                                <div id="dvsp" class="mt-3"></div>
+
+                            </div>
+                            <select name="Status" hidden>
+                                <option>True</option>
+                            </select>
+                            <input type="text" name="UploadedBy" value="@User.Identity.Name" hidden>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                @*<input type="submit" value="Change" class="btn btn-info mt-3 fs-4" style="font-family:'Agency FB'" onclick="changeresume()" />*@
+                <button type="button" class="btn btn-primary" onclick="Addresume()">Submit</button>
+                <button type="button" class="btn btn-danger light" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@* 
+<div class="modal fade" id="basicModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <span id="spn">@ViewBag.msg</span>
+                        <form method="post" name="form" id="form2" class="form-valide-with-icon needs-validation" novalidate>
+
+                            @Html.AntiForgeryToken()
+                            <input type="number" id="id" name="Id" hidden/>
+                            <input type="email" name="email" hidden value="@User.Identity.Name">
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">Title :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-brands fa-battle-net"></i> </span>
+                                    <input type="text" placeholder="Enter Title" name="Title" id="title" class="form-control br-style">
+                                    <div class="invalid-feedback">
+                                        Please Enter Title.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">Designation :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-solid fa-hat-cowboy"></i> </span>
+                                    <select class="form-control" name="Designation" id="designation">
+                                        @if (Model != null)
+                                        {
+                                            <option disabled selected>--Select Your Designation</option>
+                                            foreach (var item in Model.Designations)
+                                            {
+
+                                                <option>@item.Designation</option>
+                                            }
+                                        }
+                                    </select>
+                                    @*<div class="invalid-feedback">
+                                    Please Enter Title.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-label form-label" for="">Keywords :</label>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-solid fa-magnifying-glass"></i> </span>
+                                    <textarea name="KeyWords" class="form-control br-style" id="keyword"></textarea>
+                                    <div class="invalid-feedback">
+                                        Please Enter KeyWords.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label class="text-label form-label" for="">Upload Resume :</label> 
+                                <div class="border border-1 rounded rounded-4">
+                                    <label for="file1">
+                                        <a class="text-primary fs-1" role="button" aria-disabled="false"><i class="fa-solid fa-cloud-arrow-up"></i></a><br />
+                                        <span>Upload Resumes</span>
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text search_icon"> <i class="fa-solid fa-file"></i> </span>
+                                     <input type="file" class="form-control" id="file1" name="Resumes" accept=".pdf" onchange="RemoveoneFile()" style="visibility: hidden; position: absolute;" /><br />
+                                    <input type="file" class="form-control" id="file" name="Resumedata" onblur="return filevalidation()" multiple="multiple" required />
+                                    <div class="invalid-feedback">
+                                        Please Enter KeyWords.
+                                       
+
+                                    </div>
+                                </div>
+                                <span class="text-danger bg-warning" id="dsm" hidden></span><br />
+                                <div id="dvspm" class="mt-3 text-danger"></div>
+
+                            </div> 
+                            <select name="Status" hidden>
+                                <option>True</option>
+                            </select>
+                            <input type="text" name="UploadedBy" value="@User.Identity.Name" hidden>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" value="Change" class="btn btn-info mt-3 fs-4" style="font-family:'Agency FB'" onclick="changeresume()" />
+                <button type="button" class="btn btn-primary" onclick="UpdateResume()">Edit</button>
+                <button type="button" class="btn btn-danger light" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+ *@
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+
+<script>
+    // Function to validate file extension
+    function filevalidation() {
+        var resume = document.form1.Resumes.value;
+        if (resume.length !== 0) {
+            if (resume.substr(resume.length - 4) !== ".pdf" && resume.substr(resume.length - 4) !== ".doc") {
+                document.getElementById("rsm").innerHTML = "** Only .pdf or .doc files allowed";
+                document.getElementById("file").value = "";
+                return false;
+            }
+        }
+    }
+
+    // Function to add resumes
+    function Addresume() {
+        //var formData = new FormData(document.getElementById('form1'));
+        var obj = new FormData();
+        var data = $("#form1").serializeArray();
+        for (var x of data) {
+            obj.append(x.name, x.value);
+        }
+        var files = $('#file')[0].files;
+        for (var i = 0; i < files.length; i++) {
+            var dvt = $("#rsm_" + i).text();
+            if (files[i].name === dvt) {
+                obj.append('Resumes', files[i]);
+            }
+        }
+        $.ajax({
+            url: '/home/AddResume',
+            type: 'POST',
+            data: obj,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("Record Added Successfully");
+                location.href = "/home/UserData"; // Redirect to user data page after successful addition
+            },
+            error: function () {
+                alert("Error occurred while adding record");
+            }
+        });
+    }
+
+    // Function to remove selected file from list
+    function hideresume(x) {
+        var dat = $("#rsm_" + x).text();
+        var files = $("#file")[0].files;
+
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].name === dat) {
+                $("#rsm_" + x).parent().remove(); 
+                files.splice(i, 1); 
+                break; 
+            }
+        }
+    }
+
+    // Function to update file list display
+    function RemoveoneFile() {
+        var files = $("#file")[0].files;
+        $("#dvsp").empty(); // Clear previous list
+
+        for (var i = 0; i < files.length; i++) {
+            $("#dvsp").append(`<tr onclick="hideresume(${i})"><td class="text-black" style="font-size:12px;" id="rsm_${i}">${files[i].name}</td><td><i class="fa-solid fa-xmark text-danger ms-5"></i></td></tr>`);
+        }
+    }
+
+    function foundData(id) {
+       // alert(id)
+        $.ajax({
+            url: "/home/EditResume",
+            type:"GET",
+           data: {'id':id},
+            success: function (list) { 
+               //alert(list[0])
+                $("#title").val(list[0]);
+                $("#designation").val(list[1])
+                $("#keyword").val(list[2])
+                // $("#dsm").text(list[3])
+                // $("#dvspm").text(list[4])
+$("#id").val(list[5])
+            },
+            error: function () { 
+                alert("Something else")
+            }
+        })
+    }
+    function UpdateResume() {
+       // var formData = new FormData(document.getElementById('form2'));
+        var obj = new FormData();
+        var data = $("#form2").serializeArray();
+        for (var x of data) {
+            obj.append(x.name, x.value);
+        }
+       
+        $.ajax({
+            url: '/home/UpdateResume',
+            type: 'POST',
+            data: obj,
+            processData: false,
+            contentType: false,
+            success: function () {
+                alert("Record Updated Successfully");
+                location.href = "/home/UserData"; // Redirect to user data page after successful addition
+            },
+            error: function () {
+                alert("Error occurred while Updating record");
+            }
+        });
+    }
+
+</script>
